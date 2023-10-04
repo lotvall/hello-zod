@@ -1,61 +1,87 @@
-<template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-typescript" target="_blank" rel="noopener">typescript</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
-  </div>
-</template>
+<script setup lang="ts">
+import { useField, useForm } from 'vee-validate';
+import { toTypedSchema } from '@vee-validate/zod';
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+import z from 'zod';
 
-export default defineComponent({
-  name: 'HelloWorld',
-  props: {
-    msg: String,
-  },
+const userSchema = z.object({
+  email: z.string().nonempty('Email is required').email({ message: 'Must be a valid email' }),
+  password: z.string().nonempty('Password is required').min(8, { message: 'Password is way too short' }),
+  age: z.number().min(18, { message: 'Must be over 18 years old' }).max(65, { message: 'Cannot be over 65 years old' })
+})
+
+const { handleSubmit, errors } = useForm({
+  validationSchema: toTypedSchema(userSchema),
 });
+
+const { value: email } = useField('email');
+
+const { value: password } = useField('password');
+
+const { value: age } = useField('age');
+
+const onSubmit = handleSubmit((values) => {
+  values.email
+  values.password
+  values.age
+
+  values.profilePicture
+
+  alert(JSON.stringify(values, null, 2));
+});
+
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
+<template>
+  <form class="form" @submit="onSubmit">
+    <div class="labelContainer">
+      <span class="label">email</span>
+      <span class="error">{{ errors.email }}</span>
+    </div>
+
+    <input name="email" v-model="email" type="email" />
+
+    <div class="labelContainer">
+      <span class="label">password</span>
+      <span class="error">{{ errors.password }}</span>
+    </div>
+
+    <input name="password" v-model="password" type="password" />
+
+    <div class="labelContainer">
+      <span class="label">age</span>
+      <span class="error">{{ errors.age }}</span>
+    </div>
+
+    <input name="age" v-model="age" type="number" />
+
+    <button>Submit</button>
+  </form>
+</template>
+
+
+<style>
+.form {
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
-ul {
-  list-style-type: none;
-  padding: 0;
+
+.labelContainer {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
-li {
-  display: inline-block;
-  margin: 0 10px;
+
+.label {
+  font-weight: 500;
+  text-transform: uppercase;
 }
-a {
-  color: #42b983;
+
+.error {
+  color: red;
+  text-transform: lowercase;
 }
 </style>
